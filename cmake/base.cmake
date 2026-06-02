@@ -40,7 +40,7 @@ list(TRANSFORM composition_table PREPEND "preedit/")
 
 add_custom_command(
     OUTPUT "${config_file_stream_data_inc}"
-    COMMAND python "${MOZC_SRC_DIR}/base/gen_config_file_stream_data.py" --output "${config_file_stream_data_inc}" ${composition_table} ${keymap_files}
+    COMMAND "${Python3_EXECUTABLE}" "${MOZC_SRC_DIR}/base/gen_config_file_stream_data.py" --output "${config_file_stream_data_inc}" ${composition_table} ${keymap_files}
     WORKING_DIRECTORY "${MOZC_SRC_DIR}/data"
     COMMENT "Generating config_file_stream_data.inc"
 )
@@ -49,10 +49,26 @@ add_custom_target(gen_config_file_stream_data DEPENDS "${config_file_stream_data
 
 # Generate version_def.h
 set(version_def_h "${PROJECT_BINARY_DIR}/base/version_def.h")
+set(_mozc_target_platform "Linux")
+if (WIN32)
+    set(_mozc_target_platform "Windows")
+elseif (APPLE)
+    set(_mozc_target_platform "Mac")
+endif()
 
 add_custom_command(
     OUTPUT "${version_def_h}"
-    COMMAND "${PROJECT_SOURCE_DIR}/scripts/gen_version_def.sh" "${PROJECT_BINARY_DIR}/base/mozc_version.txt" "${version_def_h}"
+    COMMAND "${CMAKE_COMMAND}" -E env PYTHONPATH="${MOZC_SRC_DIR}"
+        "${Python3_EXECUTABLE}" "${MOZC_SRC_DIR}/build_tools/mozc_version.py"
+        --template_path "${MOZC_SRC_DIR}/version.bzl"
+        --target_platform="${_mozc_target_platform}"
+        --output "${PROJECT_BINARY_DIR}/base/mozc_version.txt"
+    COMMAND "${CMAKE_COMMAND}" -E env PYTHONPATH="${MOZC_SRC_DIR}"
+        "${Python3_EXECUTABLE}" "${MOZC_SRC_DIR}/build_tools/replace_version.py"
+        --version_file "${PROJECT_BINARY_DIR}/base/mozc_version.txt"
+        --branding Mozc
+        --input "${MOZC_SRC_DIR}/base/version_def_template.h"
+        --output "${version_def_h}"
     WORKING_DIRECTORY "${MOZC_SRC_DIR}"
     COMMENT "Generating version_def.h"
 )
@@ -93,9 +109,11 @@ set(MOZC_BASE_SRCS
 )
 list(TRANSFORM MOZC_BASE_SRCS PREPEND "${MOZC_SRC_DIR}/base/")
 
-list(APPEND MOZC_BASE_SRCS
-    "${PROJECT_SOURCE_DIR}/src/process.cc"
-)
+if (NOT WIN32)
+    list(APPEND MOZC_BASE_SRCS
+        "${PROJECT_SOURCE_DIR}/src/process.cc"
+    )
+endif()
 
 if (APPLE)
     list(APPEND MOZC_BASE_SRCS

@@ -3,7 +3,10 @@ set(pos_matcher_impl_inc "${PROJECT_BINARY_DIR}/dictionary/pos_matcher_impl.inc"
 
 add_custom_command(
     OUTPUT "${pos_matcher_impl_inc}"
-    COMMAND "${PROJECT_SOURCE_DIR}/scripts/gen_pos_matcher_code.sh" "${pos_matcher_impl_inc}"
+    COMMAND "${CMAKE_COMMAND}" -E env PYTHONPATH="${MOZC_SRC_DIR}"
+        "${Python3_EXECUTABLE}" "${MOZC_SRC_DIR}/dictionary/gen_pos_matcher_code.py"
+        --pos_matcher_rule_file="${MOZC_SRC_DIR}/data/rules/pos_matcher_rule.def"
+        --output_pos_matcher_h="${pos_matcher_impl_inc}"
     WORKING_DIRECTORY "${MOZC_SRC_DIR}"
     COMMENT "Generating pos_matcher_impl.inc"
 )
@@ -16,7 +19,11 @@ set(pos_map_inc "${PROJECT_BINARY_DIR}/dictionary/pos_map.inc")
 
 add_custom_command(
     OUTPUT "${pos_map_inc}"
-    COMMAND "${PROJECT_SOURCE_DIR}/scripts/gen_pos_map.sh" "${pos_map_inc}"
+    COMMAND "${CMAKE_COMMAND}" -E env PYTHONPATH="${MOZC_SRC_DIR}"
+        "${Python3_EXECUTABLE}" "${MOZC_SRC_DIR}/dictionary/gen_pos_map.py"
+        --user_pos_file="${MOZC_SRC_DIR}/data/rules/user_pos.def"
+        --third_party_pos_map_file="${MOZC_SRC_DIR}/data/rules/third_party_pos_map.def"
+        --output="${pos_map_inc}"
     WORKING_DIRECTORY "${MOZC_SRC_DIR}"
     COMMENT "Generating pos_map.inc"
 )
@@ -28,7 +35,10 @@ set(pos_cost_map_inc "${PROJECT_BINARY_DIR}/dictionary/pos_cost_map.inc")
 
 add_custom_command(
     OUTPUT "${pos_cost_map_inc}"
-    COMMAND "${PROJECT_SOURCE_DIR}/scripts/gen_pos_cost_map.sh" "${pos_cost_map_inc}"
+    COMMAND "${CMAKE_COMMAND}" -E env PYTHONPATH="${MOZC_SRC_DIR}"
+        "${Python3_EXECUTABLE}" "${MOZC_SRC_DIR}/dictionary/gen_pos_cost_map.py"
+        --user_pos_file="${MOZC_SRC_DIR}/data/rules/user_pos.def"
+        --output="${pos_cost_map_inc}"
     WORKING_DIRECTORY "${MOZC_SRC_DIR}"
     COMMENT "Generating pos_cost_map.inc"
 )

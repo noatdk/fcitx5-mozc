@@ -3,12 +3,29 @@ cmake_minimum_required(VERSION 3.22)
 project(fcitx5-mozc)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+if (WIN32)
+    if (NOT DEFINED Python3_EXECUTABLE OR Python3_EXECUTABLE MATCHES "WindowsApps")
+        find_program(_MOZC_PYTHON3_EXECUTABLE
+            NAMES python3 python
+            HINTS
+                "$ENV{LOCALAPPDATA}/Python/bin"
+                "$ENV{LocalAppData}/Python/bin"
+            NO_DEFAULT_PATH
+        )
+        if (_MOZC_PYTHON3_EXECUTABLE)
+            set(Python3_EXECUTABLE "${_MOZC_PYTHON3_EXECUTABLE}" CACHE FILEPATH "Python3 interpreter" FORCE)
+        endif()
+    endif()
+endif()
+find_package(Python3 REQUIRED COMPONENTS Interpreter)
 
 option(BUILD_MOZC_ADDON "Build Mozc Fcitx5 Addon" ON)
 
 include(GNUInstallDirs)
 set(CMAKE_CXX_STANDARD 20)
-add_compile_options(-fPIC)
+if (NOT WIN32)
+    add_compile_options(-fPIC)
+endif()
 
 set(MOZC_SRC_DIR "${PROJECT_SOURCE_DIR}/mozc/src")
 
@@ -18,7 +35,10 @@ if (NOT DEFINED MOZC_TARGET)
 
     set(protobuf_INSTALL OFF)
     set(protobuf_BUILD_TESTS OFF)
+    set(protobuf_BUILD_PROTOC_BINARIES OFF)
+    set(protobuf_BUILD_LIBPROTOC OFF)
     set(protobuf_BUILD_LIBUPB OFF) # No binary for iOS.
+
     add_subdirectory("protobuf")
     install(TARGETS utf8_validity DESTINATION "${CMAKE_INSTALL_LIBDIR}")
     install(TARGETS libprotobuf DESTINATION "${CMAKE_INSTALL_LIBDIR}")
@@ -55,11 +75,13 @@ if (NOT DEFINED MOZC_TARGET)
     )
 endif()
 
-if (BUILD_MOZC_ADDON)
+if (BUILD_MOZC_ADDON AND NOT WIN32)
     find_package(Gettext REQUIRED)
     find_package(Fcitx5Core 5.1.12 REQUIRED)
     find_package(Fcitx5Module REQUIRED COMPONENTS Clipboard)
 
     include("${FCITX_INSTALL_CMAKECONFIG_DIR}/Fcitx5Utils/Fcitx5CompilerSettings.cmake")
     add_subdirectory(src/unix/fcitx5)
+elseif (BUILD_MOZC_ADDON AND WIN32)
+    message(STATUS "Skipping BUILD_MOZC_ADDON on Windows")
 endif()
