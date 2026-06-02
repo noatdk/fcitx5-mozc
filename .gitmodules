@@ -1,6 +1,6 @@
 [submodule "mozc"]
 	path = mozc
-	url = https://github.com/google/mozc
+	url = https://github.com/noatdk/mozc
 [submodule "abseil-cpp"]
 	path = abseil-cpp
 	url = https://github.com/abseil/abseil-cpp
