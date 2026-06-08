@@ -115,6 +115,12 @@ if (NOT WIN32)
     )
 endif()
 
+if (WIN32)
+    list(APPEND MOZC_BASE_SRCS
+        "${MOZC_SRC_DIR}/base/win32/wide_char.cc"
+    )
+endif()
+
 if (APPLE)
     list(APPEND MOZC_BASE_SRCS
         "${PROJECT_SOURCE_DIR}/src/mac_util.mm"
