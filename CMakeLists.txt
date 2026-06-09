@@ -35,8 +35,12 @@ if (NOT DEFINED MOZC_TARGET)
 
     set(protobuf_INSTALL OFF)
     set(protobuf_BUILD_TESTS OFF)
-    set(protobuf_BUILD_PROTOC_BINARIES OFF)
-    set(protobuf_BUILD_LIBPROTOC OFF)
+    if (WIN32)
+        # Windows uses pre-generated .pb.cc files (see cmake/protobuf.cmake),
+        # so it never needs the protoc binary or libprotoc.
+        set(protobuf_BUILD_PROTOC_BINARIES OFF)
+        set(protobuf_BUILD_LIBPROTOC OFF)
+    endif()
     set(protobuf_BUILD_LIBUPB OFF) # No binary for iOS.
 
     add_subdirectory("protobuf")
