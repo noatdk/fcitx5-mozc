@@ -118,6 +118,8 @@ endif()
 if (WIN32)
     list(APPEND MOZC_BASE_SRCS
         "${MOZC_SRC_DIR}/base/win32/wide_char.cc"
+        "${MOZC_SRC_DIR}/base/win32/win_sandbox.cc"
+        "${MOZC_SRC_DIR}/base/win32/win_util.cc"
     )
 endif()
 

@@ -15,6 +15,13 @@ add_library(mozc-static STATIC
     ${MOZC_USAGE_STATS_SRCS}
 )
 
+set_source_files_properties(
+    "${MOZC_SRC_DIR}/base/hash.cc"
+    "${MOZC_SRC_DIR}/base/strings/internal/utf8_internal.cc"
+    "${MOZC_SRC_DIR}/base/util.cc"
+    PROPERTIES COMPILE_OPTIONS "/J"
+)
+
 target_include_directories(mozc-static PRIVATE
     "${MOZC_SRC_DIR}"
     "${PROJECT_SOURCE_DIR}/abseil-cpp"
@@ -22,12 +29,28 @@ target_include_directories(mozc-static PRIVATE
     "${PROJECT_BINARY_DIR}"
 )
 
-# Mozc requires char to be unsigned, as it's used as array index.
-target_compile_options(mozc-static PRIVATE -funsigned-char)
+if (WIN32)
+    target_include_directories(mozc-static PRIVATE
+        "${wil_SOURCE_DIR}/include"
+    )
+endif()
 
 target_compile_definitions(mozc-static PRIVATE
     -DMOZC_DATASET_MAGIC_NUMBER_LENGTH=7
 )
+
+if (WIN32)
+    target_compile_definitions(mozc-static PRIVATE
+        UNICODE
+        _UNICODE
+        WIN32_LEAN_AND_MEAN
+        NOMINMAX
+    )
+
+    target_link_libraries(mozc-static PUBLIC
+        aux_ulib
+    )
+endif()
 
 # fcitx5-mozc references session_handler.h.
 target_compile_definitions(mozc-static PUBLIC
