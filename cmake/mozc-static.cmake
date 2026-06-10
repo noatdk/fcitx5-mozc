@@ -47,6 +47,30 @@ if (WIN32)
         NOMINMAX
     )
 
+    if (MSVC)
+        set(_MOZC_UNSIGNED_CHAR_SRCS
+            ${MOZC_BASE_SRCS}
+            ${MOZC_COMPOSER_SRCS}
+            ${MOZC_CONFIG_SRCS}
+            ${MOZC_CONVERTER_SRCS}
+            ${MOZC_DATA_MANAGER_SRCS}
+            ${MOZC_DICTIONARY_SRCS}
+            ${MOZC_ENGINE_SRCS}
+            ${MOZC_PREDICTION_SRCS}
+            ${MOZC_REWRITER_SRCS}
+            ${MOZC_SESSION_SRCS}
+            ${MOZC_STORAGE_SRCS}
+            ${MOZC_TRANSLITERATION_SRCS}
+            ${MOZC_USAGE_STATS_SRCS}
+        )
+        list(FILTER _MOZC_UNSIGNED_CHAR_SRCS EXCLUDE REGEX "/base/win32/")
+        list(FILTER _MOZC_UNSIGNED_CHAR_SRCS EXCLUDE REGEX "/config/stats_config_util\\.cc$")
+        set_source_files_properties(
+            ${_MOZC_UNSIGNED_CHAR_SRCS}
+            PROPERTIES COMPILE_OPTIONS "/J"
+        )
+    endif()
+
     target_link_libraries(mozc-static PUBLIC
         aux_ulib
     )
